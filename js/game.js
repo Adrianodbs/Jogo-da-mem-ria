@@ -19,6 +19,56 @@ const createElement = (tag, className) => {
   return element
 }
 
+let fistCard = ''
+let secondCard = ''
+
+const checkEndGame = () => {
+  const disabledCards = document.querySelectorAll('.disabled-card')
+
+  if (disabledCards.length === 20) {
+    alert('Parabéns, você conseguiu!')
+  }
+}
+
+const checkCards = () => {
+  const firstCharacter = fistCard.getAttribute('data-character')
+  const secondCharacter = secondCard.getAttribute('data-character')
+
+  if (firstCharacter === secondCharacter) {
+    fistCard.firstChild.classList.add('disabled-card')
+    secondCard.firstChild.classList.add('disabled-card')
+
+    fistCard = ''
+    secondCard = ''
+
+    checkEndGame()
+  } else {
+    setTimeout(() => {
+      fistCard.classList.remove('reveal-card')
+      secondCard.classList.remove('reveal-card')
+
+      fistCard = ''
+      secondCard = ''
+    }, 500)
+  }
+}
+
+const revealCard = ({ target }) => {
+  if (target.parentNode.className.includes('reveal-card')) {
+    return
+  }
+
+  if (fistCard === '') {
+    target.parentNode.classList.add('reveal-card')
+    fistCard = target.parentNode
+  } else if (secondCard === '') {
+    target.parentNode.classList.add('reveal-card')
+    secondCard = target.parentNode
+
+    checkCards()
+  }
+}
+
 const creatCard = character => {
   const card = createElement('div', 'card')
   const front = createElement('div', 'face front')
@@ -29,12 +79,20 @@ const creatCard = character => {
   card.appendChild(front)
   card.appendChild(back)
 
+  card.addEventListener('click', revealCard)
+
+  card.setAttribute('data-character', character)
+
   return card
 }
 
 const loadGame = () => {
   const duplicateCharacters = [...characters, ...characters]
-  duplicateCharacters.forEach(character => {
+
+  // para embralhar as cartas
+  const shuffledArray = duplicateCharacters.sort(() => Math.random() - 0.5)
+
+  shuffledArray.forEach(character => {
     const card = creatCard(character)
     grid.appendChild(card)
   })
